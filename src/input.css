@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* optional: global font & link reset */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+a {
+  text-decoration: none;   /* remove default underline */
+  color: inherit;          /* inherit Tailwind text colors instead of purple/blue */
+}
