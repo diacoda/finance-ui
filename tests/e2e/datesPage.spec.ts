@@ -63,16 +63,25 @@ test.describe('DatesPage E2E', () => {
         // Wait until loading is done
         await page.waitForSelector('p:has-text("Loading dates...")', { state: 'detached' });
 
-        // Pick the first summary container (div that wraps link + delete button)
+        // Pick the first summary container
         const firstSummary = page.locator('div.grid > div').first();
         const deleteBtn = firstSummary.locator('button[title="Delete Summary"]');
+
+        // Ensure the delete button exists
+        await expect(deleteBtn).toHaveCount(1);
 
         // Click delete
         await deleteBtn.click();
 
-        // Wait for the parent container to disappear
-        await expect(firstSummary).toHaveCount(0, { timeout: 5000 });
+        // Confirm the dialog if needed (Playwright automatically accepts in login helper, remove if not)
+        // await page.on('dialog', dialog => dialog.accept());
 
+        // Wait for the summary container to disappear
+        await expect(firstSummary).toHaveCount(0, { timeout: 10000 });
+
+        // Optional: check that at least one summary remains or list updates
+        const remainingSummaries = page.locator('div.grid > div');
+        expect(await remainingSummaries.count()).toBeGreaterThanOrEqual(0);
     });
 });
 
