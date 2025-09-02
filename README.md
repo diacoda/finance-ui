@@ -14,3 +14,17 @@ If you are developing a production application, we recommend using TypeScript wi
 npm install
 npx tailwindcss -i ./src/input.css -o ./src/output.css --watch
 npm run dev
+
+## Testing
+
+Unit + component tests → Vitest + React Testing Library
+Hook tests → RTL renderHook
+Optional: E2E → Cypress or Playwright
+npx playwright init (to delete ~/Library/Caches/ms-playwright)
+
+Add testing scripts in package.json
+"scripts": {
+"dev": "vite",
+"test": "vitest",
+"test:watch": "vitest --watch"
+}

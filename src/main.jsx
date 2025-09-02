@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { AuthProvider } from "./context/AuthProvider";
 import App from './App.jsx'
 
 // Entry point: create a React root and render the App component
@@ -11,6 +12,8 @@ import App from './App.jsx'
 // App is where all pages and routing are defined.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App /> {/* The root component that contains routing and context */}
+    <AuthProvider>
+      <App /> {/* The root component that contains routing and context */}
+    </AuthProvider>
   </StrictMode>,
 )

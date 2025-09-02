@@ -1,29 +1,15 @@
-/**
- * DatesPage.jsx
- *
- * Displays a list of available market summary dates.
- * Allows users to:
- * - Request today's market summary
- * - Request a summary for a specific date
- * - Delete existing summaries
- *
- * Uses axios for API calls and React Router for navigation.
- */
-
 // src/pages/DatesPage.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../api/axiosInstance";
 
 export default function DatesPage() {
-  // --- State variables ---
-  const [dates, setDates] = useState([]);             // List of available summary dates
-  const [loading, setLoading] = useState(true);       // Loading state for fetching dates
-  const [requesting, setRequesting] = useState(false);// Loading state for requests
-  const [deletingIds, setDeletingIds] = useState(new Set()); // Track currently deleting summaries
-  const [selectedDate, setSelectedDate] = useState("");      // Date selected by user for request
+  const [dates, setDates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [requesting, setRequesting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState(new Set());
+  const [selectedDate, setSelectedDate] = useState("");
 
-  // --- Fetch all available summary dates from the API ---
   const fetchDates = async () => {
     setLoading(true);
     try {
@@ -37,18 +23,16 @@ export default function DatesPage() {
     }
   };
 
-  // Fetch dates on component mount
   useEffect(() => {
     fetchDates();
   }, []);
 
-  // --- Request today's market summary ---
   const requestToday = async () => {
     setRequesting(true);
     try {
       await axios.post("/accounts/summaries");
       alert("Today's market data requested!");
-      await fetchDates(); // Refresh dates after request
+      await fetchDates();
     } catch (err) {
       console.error("Failed to request today's data:", err);
       alert("Failed to request today's data.");
@@ -57,14 +41,13 @@ export default function DatesPage() {
     }
   };
 
-  // --- Request market summary for a specific date ---
   const requestDate = async () => {
     if (!selectedDate) return alert("Please select a date.");
     setRequesting(true);
     try {
       await axios.post(`/accounts/summaries?asOf=${encodeURIComponent(selectedDate)}`);
       alert(`Market data requested for ${selectedDate}!`);
-      await fetchDates(); // Refresh dates after request
+      await fetchDates();
     } catch (err) {
       console.error(`Failed to request data for ${selectedDate}:`, err);
       alert("Failed to request market data.");
@@ -73,23 +56,19 @@ export default function DatesPage() {
     }
   };
 
-  // --- Delete a summary for a given date ---
   const deleteSummary = async (date) => {
-    // Confirm deletion with user
     if (!window.confirm(`Are you sure you want to delete the summary for ${date}?`)) return;
 
-    // Mark as deleting
     setDeletingIds((prev) => new Set(prev).add(date));
 
     try {
       const res = await axios.delete(`/accounts/summaries?asOf=${encodeURIComponent(date)}`);
       alert(`Deleted ${res.data.deleted} summaries for ${res.data.date}`);
-      await fetchDates(); // Refresh dates after deletion
+      await fetchDates();
     } catch (err) {
       console.error("Failed to delete summary:", err);
       alert("Failed to delete summary.");
     } finally {
-      // Remove from deleting state
       setDeletingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(date);
@@ -98,14 +77,12 @@ export default function DatesPage() {
     }
   };
 
-  // --- Render component ---
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 space-y-6">
       <h1 className="text-3xl font-bold">Market Summaries</h1>
 
-      {/* --- Action Buttons --- */}
+      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mb-4">
-        {/* Request today's summary */}
         <button
           onClick={requestToday}
           disabled={requesting}
@@ -115,9 +92,10 @@ export default function DatesPage() {
           {requesting ? "Requesting Today..." : "Request Today’s Market Data"}
         </button>
 
-        {/* Request summary for a specific date */}
         <div className="flex space-x-2">
+          <label htmlFor="dateInput" className="sr-only">Select Date</label>
           <input
+            id="dateInput"
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
@@ -134,7 +112,7 @@ export default function DatesPage() {
         </div>
       </div>
 
-      {/* --- Dates List --- */}
+      {/* Dates List */}
       {loading ? (
         <p>Loading dates...</p>
       ) : dates.length === 0 ? (
@@ -146,15 +124,12 @@ export default function DatesPage() {
               key={d}
               className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow flex justify-between items-center"
             >
-              {/* Link to Market Summary page for the date */}
               <Link
                 to={`/summary/${encodeURIComponent(d)}`}
                 className="font-semibold text-lg text-gray-900 dark:text-gray-100 hover:underline"
               >
                 Summary {d}
               </Link>
-
-              {/* Delete button */}
               <button
                 onClick={() => deleteSummary(d)}
                 disabled={deletingIds.has(d)}

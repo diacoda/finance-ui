@@ -25,5 +25,22 @@ export default defineConfig([
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
+    // Overrides for test files
+    overrides: [
+      {
+        files: ['tests/**/*.{js,jsx}'],
+        languageOptions: {
+          globals: {
+            ...globals.browser, // keep browser globals
+            ...globals.node,    // if needed
+            test: 'readonly',
+            describe: 'readonly',
+            expect: 'readonly',
+            beforeEach: 'readonly',
+            afterEach: 'readonly',
+          },
+        },
+      },
+    ],
   },
 ])

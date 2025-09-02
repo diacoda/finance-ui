@@ -7,7 +7,7 @@ function parseJwt(token) {
   try {
     return JSON.parse(atob(token.split(".")[1]));
   } catch (e) {
-    console.log(e);
+    console.log("JWT parse error:", e);
     return null;
   }
 }
@@ -21,18 +21,44 @@ export const AuthProvider = ({ children }) => {
   const isTokenExpired = () => {
     if (!authToken) return true;
     const decoded = parseJwt(authToken);
-    if (!decoded || !decoded.exp) return true;
-    const now = Date.now() / 1000; // current time in seconds
+    if (!decoded?.exp) return true;
+    const now = Date.now() / 1000;
     return decoded.exp < now;
   };
 
-  useEffect(() => {
-    if (authToken) localStorage.setItem("authToken", authToken);
-    else localStorage.removeItem("authToken");
-  }, [authToken]);
-
   const login = (token) => setAuthToken(token);
   const logout = () => setAuthToken(null);
+
+  // Keep localStorage in sync
+  useEffect(() => {
+    if (authToken) {
+      localStorage.setItem("authToken", authToken);
+    } else {
+      localStorage.removeItem("authToken");
+    }
+  }, [authToken]);
+
+  // Auto-logout exactly at expiry
+  useEffect(() => {
+    if (!authToken) return;
+
+    const decoded = parseJwt(authToken);
+    if (!decoded?.exp) return;
+
+    const now = Date.now() / 1000;
+    const expiresInMs = (decoded.exp - now) * 1000;
+
+    if (expiresInMs <= 0) {
+      logout();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      logout();
+    }, expiresInMs);
+
+    return () => clearTimeout(timer);
+  }, [authToken]);
 
   return (
     <AuthContext.Provider
