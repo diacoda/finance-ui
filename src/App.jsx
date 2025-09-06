@@ -15,9 +15,12 @@ import MarketSummaryPage from "./pages/MarketSummaryPage";
 import PricesByDatePage from "./pages/PricesByDatePage";
 import HistoryPage from "./pages/HistoryPage";
 import LoginPage from "./pages/LoginPage";
+import AccountsExplorerPage from "./pages/AccountsExplorerPage";
+import AccountDetailsPage from "./pages/AccountDetailsPage";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
+import MarketOverviewPage from "./pages/MarketOverviewPage";
 
 function AppContent() {
   const { authToken, logout } = useAuth();
@@ -35,6 +38,8 @@ function AppContent() {
                   { name: "Market Summary", to: "/" },
                   { name: "Prices", to: "/prices" },
                   { name: "Market History", to: "/history" },
+                  { name: "Market Overview", to: "/overview" },
+                  { name: "Accounts Explorer", to: "/accounts-explorer" },
                 ].map((item) => (
                   <NavLink
                     key={item.to}
@@ -80,6 +85,14 @@ function AppContent() {
             }
           />
           <Route
+            path="/overview"
+            element={
+              <ProtectedRoute>
+                <MarketOverviewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/summary/:date"
             element={
               <ProtectedRoute>
@@ -103,6 +116,22 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/accounts-explorer"
+            element={
+              <ProtectedRoute>
+                <AccountsExplorerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/:accountName"
+            element={
+              <ProtectedRoute>
+                <AccountDetailsPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Login page (redirects to / if already logged in) */}
           <Route
@@ -118,11 +147,6 @@ function AppContent() {
   );
 }
 
-//export default App;
-//export { AppContent }; // export for testing without Router
-  
-// Root App
-
 export default function App() {
   return (
     <Router>
@@ -130,5 +154,5 @@ export default function App() {
     </Router>
   );
 }
-// src/App.jsx
-export { AppContent }; // add this if not already exported
+
+export { AppContent };
