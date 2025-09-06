@@ -93,13 +93,8 @@ export default function MarketSummaryPage() {
         {/* Total Market Value Card */}
         <Card title="Total Market Value">
           <p className="text-lg font-semibold">${summary.total.toLocaleString()}</p>
-        </Card>
-
-        {/* Detailed Summary Cards */}
-        <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-
-          {/* By Owner */}
-          <Card title="By Owner">
+          <p></p>
+          <h2 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">By Owner</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
@@ -120,7 +115,11 @@ export default function MarketSummaryPage() {
                 </tbody>
               </table>
             </div>
-          </Card>
+        </Card>
+
+        {/* Detailed Summary Cards */}
+        <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+
 
           {/* By Owner & Filter */}
           <Card title="By Owner & Filter">
