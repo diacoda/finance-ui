@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import Button from '../../src/components/Button';
 
 test('renders button with text', () => {

@@ -1,14 +1,24 @@
+// tests/pages/DatesPage.test.jsx
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import DatesPage from "../../src/pages/DatesPage";
-import axios from "../../src/api/axiosInstance";
+import { vi } from "vitest";
 
-// --- Mock axios ---
-vi.mock("../../src/api/axiosInstance");
+// --- Mock axios properly ---
+vi.mock("../../src/api/axiosInstance", () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+import axios from "../../src/api/axiosInstance";
 
 // --- Mock window.alert ---
 beforeAll(() => {
-  window.alert = vi.fn(); // vitest equivalent of jest.fn()
+  window.alert = vi.fn();
+  window.confirm = vi.fn().mockReturnValue(true);
 });
 
 beforeEach(() => {
@@ -16,10 +26,6 @@ beforeEach(() => {
 });
 
 describe("DatesPage", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   test("renders fetched dates", async () => {
     axios.get.mockResolvedValueOnce({
       data: ["2025-09-01", "2025-08-30"],
@@ -38,7 +44,10 @@ describe("DatesPage", () => {
   });
 
   test("requests today's summary", async () => {
-    axios.get.mockResolvedValueOnce({ data: [] });
+    axios.get
+      .mockResolvedValueOnce({ data: [] }) // initial fetch
+      .mockResolvedValueOnce({ data: ["2025-09-01"] }); // after post refresh
+
     axios.post.mockResolvedValueOnce({});
 
     render(
@@ -52,11 +61,16 @@ describe("DatesPage", () => {
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith("/accounts/summaries");
+      expect(window.alert).toHaveBeenCalledWith("Today's market data requested!");
+      expect(screen.getByText("Summary 2025-09-01")).toBeInTheDocument();
     });
   });
 
   test("requests summary for selected date", async () => {
-    axios.get.mockResolvedValueOnce({ data: [] });
+    axios.get
+      .mockResolvedValueOnce({ data: [] }) // initial fetch
+      .mockResolvedValueOnce({ data: ["2025-09-01"] }); // after post refresh
+
     axios.post.mockResolvedValueOnce({});
 
     render(
@@ -75,12 +89,21 @@ describe("DatesPage", () => {
       expect(axios.post).toHaveBeenCalledWith(
         "/accounts/summaries?asOf=2025-09-01"
       );
+      expect(window.alert).toHaveBeenCalledWith(
+        "Market data requested for 2025-09-01!"
+      );
+      expect(screen.getByText("Summary 2025-09-01")).toBeInTheDocument();
     });
   });
 
   test("deletes a summary", async () => {
-    axios.get.mockResolvedValueOnce({ data: ["2025-09-01"] });
-    axios.delete.mockResolvedValueOnce({ data: { deleted: 1, date: "2025-09-01" } });
+    axios.get
+      .mockResolvedValueOnce({ data: ["2025-09-01"] }) // initial fetch
+      .mockResolvedValueOnce({ data: [] }); // after delete refresh
+
+    axios.delete.mockResolvedValueOnce({
+      data: { deleted: 1, date: "2025-09-01" },
+    });
 
     render(
       <MemoryRouter>
@@ -92,9 +115,6 @@ describe("DatesPage", () => {
       expect(screen.getByText("Summary 2025-09-01")).toBeInTheDocument();
     });
 
-    // Mock confirm dialog
-    window.confirm = vi.fn().mockReturnValue(true);
-
     const deleteButton = screen.getByTitle("Delete Summary");
     fireEvent.click(deleteButton);
 
@@ -102,6 +122,12 @@ describe("DatesPage", () => {
       expect(axios.delete).toHaveBeenCalledWith(
         "/accounts/summaries?asOf=2025-09-01"
       );
+      expect(window.alert).toHaveBeenCalledWith(
+        "Deleted 1 summaries for 2025-09-01"
+      );
+      expect(
+        screen.queryByText("Summary 2025-09-01")
+      ).not.toBeInTheDocument();
     });
   });
 });

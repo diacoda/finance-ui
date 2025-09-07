@@ -2,8 +2,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from '../src/context/AuthProvider';
-import { AppContent } from '../src/App'; // <- use AppContent, NOT App
+import { AuthProvider } from '../../src/context/AuthProvider';
+import { AppContent } from '../../src/App';
 
 // Helper to create a simple fake JWT
 function createFakeToken(expiryInSeconds = 60) {
