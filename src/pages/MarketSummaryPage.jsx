@@ -27,7 +27,6 @@ export default function MarketSummaryPage() {
           `/portfolio/total?asOf=${date}`,
           `/portfolio/by-owner?asOf=${date}`,
           `/portfolio/by-owner-filter?asOf=${date}`,
-          //`/portfolio/by-owner-type?asOf=${date}`,
           `/portfolio/by-owner-type-accountname?asOf=${date}`, // NEW
         ];
 
